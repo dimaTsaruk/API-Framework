@@ -7,7 +7,7 @@ import lombok.Data;
 //Jackson provide annotation to ignore all unknown properties
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-public class RebrandlyLinkResponse {
+public class RebrandlyLink {
     private String id;
     private String title;
     private String destination;

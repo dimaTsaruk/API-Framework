@@ -1,8 +1,9 @@
 package com.devxschool.apiframework.cucumber.steps;
 
-import com.devxschool.apiframework.cucumber.api.pojos.RebrandlyLinkResponse;
+import com.devxschool.apiframework.cucumber.api.pojos.RebrandlyLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
@@ -18,8 +19,10 @@ import java.util.Map;
 
 public class RebrandlySteps {
     private Response response;
+    private String linkId;
 
-    //this regex means: either matches all in double quotes or nothing
+
+
     @When("^the base URL \"([^\"]*)\"$")
     public void theBaseUrl(String baseUrl) {
         RestAssured.baseURI = baseUrl;
@@ -48,7 +51,7 @@ public class RebrandlySteps {
         requestSpec.accept(ContentType.JSON);
 
         response = requestSpec
-                .queryParams("limit", queryParams.get(0).get("limit"))
+                .queryParams(queryParams.get(0))
                 .get("/v1/links");
     }
 
@@ -59,7 +62,7 @@ public class RebrandlySteps {
 /**
  * The objectMapper doesn't have a build in function to convert Json array to List of objects.
  * We can convert a Json array into the Java array of objects. In this case, we're converting the body which
- * is a Json array, we're converting it to the array of RebrandlyLinkResponse[].
+ * is a Json array, we're converting it to the array of RebrandlyLink[].
  * And then we convert regular array to List using Arrays.asList(...) method.
  *
  * If we want to convert the Json Obj into the Java obj, we dont need to put [] after Rebr.Link.Resp.
@@ -69,11 +72,67 @@ public class RebrandlySteps {
  * In the next line we simply convert Json array into Java array. And then we convert this array into the List
  * of objects.
  */
-        List<RebrandlyLinkResponse> linksList =
-                Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLinkResponse[].class));
+        List<RebrandlyLink> linksList =
+                Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
         MatcherAssert.assertThat(linksList.size(), Matchers.is(1));
 
     }
 
+    @And("verify that {int} links has been returned with the following domainId {string}")
+    public void verifyThatLinksHasBeenReturnedWithTheFollowingDomainId(int numberOfLinks, String domainId) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<RebrandlyLink> linksList
+                = Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
 
+        MatcherAssert.assertThat(linksList.size(), Matchers.is(numberOfLinks));
+
+        for (RebrandlyLink rebrandlyLinkResponse : linksList) {
+            MatcherAssert.assertThat(rebrandlyLinkResponse.getDomainId(), Matchers.is(domainId));
+        }
+    }
+
+    @When("the following link is created")
+    public void the_following_link_is_created(List<Map<String, String>> linkRequest) {
+        RebrandlyLink rebrandlyLink = new RebrandlyLink();
+        rebrandlyLink.setDestination(linkRequest.get(0).get("destination"));
+
+        RequestSpecification requestSpec = RestAssured.given();
+        requestSpec.headers("apiKey", "b784b04b122144ffab7d39dfde062c71");
+        requestSpec.contentType(ContentType.JSON);
+        requestSpec.accept(ContentType.JSON);
+        requestSpec.body(rebrandlyLink);
+
+        response = requestSpec.post("/v1/links");
+
+        linkId = response.getBody().jsonPath().getString("id");
+    }
+
+    @Then("the following link has been created")
+    public void the_following_link_has_been_created(List<Map<String, String>> linkResponse) throws JsonProcessingException {
+
+        //deserialize our response to the pojo
+        ObjectMapper objectMapper = new ObjectMapper();
+        RebrandlyLink rebrandlyLinkResponse
+                = objectMapper.readValue(response.body().asString(), RebrandlyLink.class);
+
+        linkId = rebrandlyLinkResponse.getId();
+
+        MatcherAssert.assertThat(rebrandlyLinkResponse.getDestination(), Matchers.is(linkResponse.get(0).get("destination")));
+
+    }
+
+
+    @When("the link details has been requested")
+    public void requestLinkDetails() {
+        RequestSpecification requestSpec = RestAssured.given();
+        requestSpec.headers("apiKey", "b784b04b122144ffab7d39dfde062c71");
+        requestSpec.accept(ContentType.JSON);
+
+        response = requestSpec
+                .pathParam("linkId", linkId)
+                .get("/v1/links/{linkId}");
+
+
+    }
 }
+

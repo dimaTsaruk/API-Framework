@@ -12,10 +12,9 @@ import org.junit.runner.RunWith;
         glue = {
                 "com/devxschool/apiframework/cucumber/steps"
         },
-        tags = "@getAllLinksWithLimitQueryParam",
+        tags = "@createLinkAndGetLinkDetails",
         dryRun = false// true - check if we have implemented all the steps
 
 )
 public class RebrandlyTest {
-
 }
