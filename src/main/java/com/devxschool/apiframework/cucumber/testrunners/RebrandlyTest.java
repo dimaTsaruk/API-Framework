@@ -12,9 +12,9 @@ import org.junit.runner.RunWith;
         glue = {
                 "com/devxschool/apiframework/cucumber/steps"
         },
-        tags = "@createLinkAndGetLinkDetails",
-        dryRun = false// true - check if we have implemented all the steps
-
+        tags = "@Rebrandly",
+        dryRun = false
 )
+
 public class RebrandlyTest {
 }

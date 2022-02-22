@@ -1,2 +1,25 @@
 Json arrays needs to be deserialized into array of objects
 Json Object needs to be deserialized into objects
+
+
+/**
+ * The objectMapper doesn't have a build in function to convert Json array to List of objects.
+ * We can convert a Json array into the Java array of objects. In this case, we're converting the body which
+ * is a Json array, we're converting it to the array of RebrandlyLink[].
+ * And then we convert regular array to List using Arrays.asList(...) method.
+ *
+ * If we want to convert the Json Obj into the Java obj, we dont need to put [] after Rebr.Link.Resp.
+ * But if we want to convert the Json array into the Java array, we need to put [], bc that's how you define
+ * the array.
+ *
+ * In the next line we simply convert Json array into Java array. And then we convert this array into the List
+ * of objects.
+
+ List<RebrandlyLink> linksList =
+                 Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
+         MatcherAssert.assertThat(linksList.size(), Matchers.is(1));
+ */
+
+ ! Each scenario should run independent and clean up after.
+
+ - To run all the the features we need put the tag on top of the feature file
