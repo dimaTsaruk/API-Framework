@@ -1,6 +1,7 @@
-package com.devxschool.apiframework.cucumber.steps;
+package com.devxschool.apiframework.cucumber.steps.rebrandly;
 
 import com.devxschool.apiframework.cucumber.api.pojos.RebrandlyLink;
+import com.devxschool.apiframework.cucumber.utilities.ObjectConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.After;
@@ -51,19 +52,25 @@ public class RebrandlySteps {
 
     @Then("only 1 link is returned")
     public void only_link_is_returned() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        //ObjectMapper objectMapper = new ObjectMapper();
 
-        List<RebrandlyLink> linksList =
-                Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
+        // RebrandlyLink[] responseArray = objectMapper.readValue(response.body().asString(), RebrandlyLink[].class);
+
+        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(response.body().asString(),
+                RebrandlyLink[].class);
+
+//        List<RebrandlyLink> linksList =
+//                Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
         MatcherAssert.assertThat(linksList.size(), Matchers.is(1));
 
     }
 
     @And("verify that {int} links has been returned with the following domainId {string}")
     public void verifyThatLinksHasBeenReturnedWithTheFollowingDomainId(int numberOfLinks, String domainId) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<RebrandlyLink> linksList
-                = Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
+        // ObjectMapper objectMapper = new ObjectMapper();
+        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(response.body().asString(),
+                RebrandlyLink[].class);
+        // = Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
 
         MatcherAssert.assertThat(linksList.size(), Matchers.is(numberOfLinks));
 
@@ -91,7 +98,8 @@ public class RebrandlySteps {
         //deserialize our response to the pojo
         ObjectMapper objectMapper = new ObjectMapper();
         RebrandlyLink rebrandlyLinkResponse
-                = objectMapper.readValue(response.body().asString(), RebrandlyLink.class);
+                = ObjectConverter.convertJsonObjectToJavaObject(response.body().asString(), RebrandlyLink.class);
+        // = objectMapper.readValue(response.body().asString(), RebrandlyLink.class);
 
         linkId = rebrandlyLinkResponse.getId();
 
