@@ -6,11 +6,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/resources/features/gorestusers.feature",
-        glue = "com/devxschool/apiframework/cucumber/steps",
-        tags = "@createUser",
-        dryRun = false
-
+        features = "src/test/resources/features/gorestpost.feature",
+        glue = "com/devxschool/apiframework/cucumber/steps"
 )
-public class GorestTest {
+public class GorestPostTest {
 }

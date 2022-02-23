@@ -1,7 +1,8 @@
-package com.devxschool.apiframework.cucumber.steps.gorest;
+package com.devxschool.apiframework.cucumber.steps;
 
 import com.devxschool.apiframework.cucumber.api.pojos.RebrandlyLink;
 import com.devxschool.apiframework.cucumber.api.pojos.User;
+import com.devxschool.apiframework.cucumber.steps.common.CommonData;
 import com.devxschool.apiframework.cucumber.utilities.ObjectConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,8 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 public class GorestSteps {
-    private Response response;
-    private String linkId;
+    private CommonData commonData;
+
+    public GorestSteps(CommonData commonData) {
+        this.commonData = commonData;
+    }
+
+    //private Response response;
 
     @Before
     public void setUp() {
@@ -33,20 +39,20 @@ public class GorestSteps {
     public void all_users_are_requested() {
         RequestSpecification requestSpec = RestAssured.given();
         requestSpec.accept(ContentType.JSON);
-        response = requestSpec.get("/users");
+        commonData.response = requestSpec.get("/users");
     }
 
-    @Then("^a status code (\\d+) is returned$")
-    public void a_status_code_is_returned(int statusCode) {
-        MatcherAssert.assertThat(response.getStatusCode(), Matchers.is(statusCode));
-    }
+//    @Then("^a status code (\\d+) is returned$")
+//    public void a_status_code_is_returned(int statusCode) {
+//        MatcherAssert.assertThat(commonData.response.getStatusCode(), Matchers.is(statusCode));
+//    }
 
     @Then("{int} users are returned")
     public void users_are_returned(Integer amountOfUsers) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         List<User> linksList =
-                Arrays.asList(objectMapper.readValue(response.body().asString(), User[].class));
+                Arrays.asList(objectMapper.readValue(commonData.response.body().asString(), User[].class));
         MatcherAssert.assertThat(linksList.size(), Matchers.is(20));
 
     }
@@ -66,14 +72,14 @@ public class GorestSteps {
         requestSpec.accept(ContentType.JSON);
         requestSpec.body(userRequest);
 
-        response = requestSpec.post("/users");
+        commonData.response = requestSpec.post("/users");
 
     }
 
     //check doesnt work
     @Then("the following user has been returned")
     public void the_following_user_has_been_returned(List<Map<String, String>> userResponse) throws JsonProcessingException {
-        User actualUser = ObjectConverter.convertJsonObjectToJavaObject(response.body().asString(), User.class);
+        User actualUser = ObjectConverter.convertJsonObjectToJavaObject(commonData.response.body().asString(), User.class);
 
         MatcherAssert.assertThat(actualUser.getName(), Matchers.is(userResponse.get(0).get("name")));
         MatcherAssert.assertThat(actualUser.getEmail(), Matchers.is(userResponse.get(0).get("email")));

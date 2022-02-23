@@ -23,3 +23,55 @@ Json Object needs to be deserialized into objects
  ! Each scenario should run independent and clean up after.
 
  - To run all the the features we need put the tag on top of the feature file
+
+
+ =========================== class 028 ==========================
+ Topic: Dependency injection
+ Concept of DI : we have one class1 that will store common data. (ex.Response). And in another class we inject our
+ class1 - simply declare variable of this class on class level. We also need to import <dep.> called
+ "cucumber-picocontainer" which will internally inject everything for us.
+ So the whole DI meaning : you basically providing objects to the class where you wanna use it.
+ When we use pccntr its a mandatory to use constructor.
+
+// convert from Data table into object
+
+@When("^I Enter My Regular Expenses$")
+public void I_Enter_My_Regular_Expenses(DataTable dataTable) throws Throwable {
+  List<Expense> expenseList = dataTable.asList(Expense.class);
+
+  for (Expense expense : expenseList) {
+    System.out.println(expense);
+  }
+
+  // Here, asList() creates a List of Expense objects.
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
                 "src/test/resources/features/rebrandly.feature"
         },
         glue = {
-                "com/devxschool/apiframework/cucumber/steps/rebrandly"
+                "com/devxschool/apiframework/cucumber/steps"
         },
         tags = "@createLink",
         dryRun = false

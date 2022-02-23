@@ -1,6 +1,7 @@
-package com.devxschool.apiframework.cucumber.steps.rebrandly;
+package com.devxschool.apiframework.cucumber.steps;
 
 import com.devxschool.apiframework.cucumber.api.pojos.RebrandlyLink;
+import com.devxschool.apiframework.cucumber.steps.common.CommonData;
 import com.devxschool.apiframework.cucumber.utilities.ObjectConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,13 +17,16 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class RebrandlySteps {
-    private Response response;
+    private CommonData commonData;
     private String linkId;
+
+    public RebrandlySteps(CommonData commonData) {
+        this.commonData = commonData;
+    }
 
     @Before
     public void setUp() {
@@ -33,19 +37,19 @@ public class RebrandlySteps {
     @When("^all links are requested$")
     public void all_links_are_requested() {
         RequestSpecification requestSpec = setUpHeaders();
-        response = requestSpec.get("/v1/links");
+        commonData.response = requestSpec.get("/v1/links");
     }
 
-    @Then("^a status code (\\d+) is returned$")
-    public void a_status_code_is_returned(int statusCode) {
-        MatcherAssert.assertThat(response.getStatusCode(), Matchers.is(statusCode));
-    }
+//    @Then("^a status code (\\d+) is returned$")
+//    public void a_status_code_is_returned(int statusCode) {
+//        MatcherAssert.assertThat(commonData.response.getStatusCode(), Matchers.is(statusCode));
+//    }
 
     @When("all links are requested with the following query params")
     public void all_links_are_requested_with_the_following_query_params(List<Map<String, String>> queryParams) {
         RequestSpecification requestSpec = setUpHeaders();
 
-        response = requestSpec
+        commonData.response = requestSpec
                 .queryParams(queryParams.get(0))
                 .get("/v1/links");
     }
@@ -56,7 +60,7 @@ public class RebrandlySteps {
 
         // RebrandlyLink[] responseArray = objectMapper.readValue(response.body().asString(), RebrandlyLink[].class);
 
-        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(response.body().asString(),
+        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(commonData.response.body().asString(),
                 RebrandlyLink[].class);
 
 //        List<RebrandlyLink> linksList =
@@ -68,7 +72,7 @@ public class RebrandlySteps {
     @And("verify that {int} links has been returned with the following domainId {string}")
     public void verifyThatLinksHasBeenReturnedWithTheFollowingDomainId(int numberOfLinks, String domainId) throws JsonProcessingException {
         // ObjectMapper objectMapper = new ObjectMapper();
-        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(response.body().asString(),
+        List<RebrandlyLink> linksList = ObjectConverter.convertJsonArrayToListOfObjects(commonData.response.body().asString(),
                 RebrandlyLink[].class);
         // = Arrays.asList(objectMapper.readValue(response.body().asString(), RebrandlyLink[].class));
 
@@ -87,9 +91,9 @@ public class RebrandlySteps {
         RequestSpecification requestSpec = setUpHeaders();
         requestSpec.body(rebrandlyLink);
 
-        response = requestSpec.post("/v1/links");
+        commonData.response = requestSpec.post("/v1/links");
 
-        linkId = response.getBody().jsonPath().getString("id");
+        linkId = commonData.response.getBody().jsonPath().getString("id");
     }
 
     @Then("the following link has been returned")
@@ -98,7 +102,7 @@ public class RebrandlySteps {
         //deserialize our response to the pojo
         ObjectMapper objectMapper = new ObjectMapper();
         RebrandlyLink rebrandlyLinkResponse
-                = ObjectConverter.convertJsonObjectToJavaObject(response.body().asString(), RebrandlyLink.class);
+                = ObjectConverter.convertJsonObjectToJavaObject(commonData.response.body().asString(), RebrandlyLink.class);
         // = objectMapper.readValue(response.body().asString(), RebrandlyLink.class);
 
         linkId = rebrandlyLinkResponse.getId();
@@ -110,7 +114,7 @@ public class RebrandlySteps {
     @When("the link details has been requested")
     public void requestLinkDetails() {
         RequestSpecification requestSpec = setUpHeaders();
-        response = requestSpec
+        commonData.response = requestSpec
                 .pathParam("linkId", linkId)
                 .get("/v1/links/{linkId}");
     }
@@ -125,7 +129,7 @@ public class RebrandlySteps {
 
         requestSpec.body(rebrandlyLinkBody);
 
-        response = requestSpec
+        commonData.response = requestSpec
                 .pathParam("linkId", id)
                 .post("/v1/links/{linkId}");
     }
@@ -134,7 +138,7 @@ public class RebrandlySteps {
     public void deleteLink() {
         RequestSpecification requestSpec = setUpHeaders();
 
-        response = requestSpec
+        commonData.response = requestSpec
                 .pathParam("linkId", linkId)
                 .delete("v1/links/{linkId}");
 
